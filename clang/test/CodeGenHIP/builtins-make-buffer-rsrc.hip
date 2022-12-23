@@ -7,24 +7,18 @@
 // CHECK-LABEL: define dso_local ptr addrspace(8) @_Z31test_amdgcn_make_buffer_rsrc_p0Pvsii(
 // CHECK-SAME: ptr noundef [[P:%.*]], i16 noundef signext [[STRIDE:%.*]], i32 noundef [[NUM:%.*]], i32 noundef [[FLAGS:%.*]]) #[[ATTR0:[0-9]+]] {
 // CHECK-NEXT:  [[ENTRY:.*:]]
-// CHECK-NEXT:    [[RETVAL:%.*]] = alloca ptr addrspace(8), align 16, addrspace(5)
 // CHECK-NEXT:    [[P_ADDR:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[STRIDE_ADDR:%.*]] = alloca i16, align 2, addrspace(5)
 // CHECK-NEXT:    [[NUM_ADDR:%.*]] = alloca i32, align 4, addrspace(5)
 // CHECK-NEXT:    [[FLAGS_ADDR:%.*]] = alloca i32, align 4, addrspace(5)
-// CHECK-NEXT:    [[RETVAL_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[RETVAL]] to ptr
-// CHECK-NEXT:    [[P_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[P_ADDR]] to ptr
-// CHECK-NEXT:    [[STRIDE_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[STRIDE_ADDR]] to ptr
-// CHECK-NEXT:    [[NUM_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[NUM_ADDR]] to ptr
-// CHECK-NEXT:    [[FLAGS_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[FLAGS_ADDR]] to ptr
-// CHECK-NEXT:    store ptr [[P]], ptr [[P_ADDR_ASCAST]], align 8
-// CHECK-NEXT:    store i16 [[STRIDE]], ptr [[STRIDE_ADDR_ASCAST]], align 2
-// CHECK-NEXT:    store i32 [[NUM]], ptr [[NUM_ADDR_ASCAST]], align 4
-// CHECK-NEXT:    store i32 [[FLAGS]], ptr [[FLAGS_ADDR_ASCAST]], align 4
-// CHECK-NEXT:    [[TMP0:%.*]] = load ptr, ptr [[P_ADDR_ASCAST]], align 8
-// CHECK-NEXT:    [[TMP1:%.*]] = load i16, ptr [[STRIDE_ADDR_ASCAST]], align 2
-// CHECK-NEXT:    [[TMP2:%.*]] = load i32, ptr [[NUM_ADDR_ASCAST]], align 4
-// CHECK-NEXT:    [[TMP3:%.*]] = load i32, ptr [[FLAGS_ADDR_ASCAST]], align 4
+// CHECK-NEXT:    store ptr [[P]], ptr addrspace(5) [[P_ADDR]], align 8
+// CHECK-NEXT:    store i16 [[STRIDE]], ptr addrspace(5) [[STRIDE_ADDR]], align 2
+// CHECK-NEXT:    store i32 [[NUM]], ptr addrspace(5) [[NUM_ADDR]], align 4
+// CHECK-NEXT:    store i32 [[FLAGS]], ptr addrspace(5) [[FLAGS_ADDR]], align 4
+// CHECK-NEXT:    [[TMP0:%.*]] = load ptr, ptr addrspace(5) [[P_ADDR]], align 8
+// CHECK-NEXT:    [[TMP1:%.*]] = load i16, ptr addrspace(5) [[STRIDE_ADDR]], align 2
+// CHECK-NEXT:    [[TMP2:%.*]] = load i32, ptr addrspace(5) [[NUM_ADDR]], align 4
+// CHECK-NEXT:    [[TMP3:%.*]] = load i32, ptr addrspace(5) [[FLAGS_ADDR]], align 4
 // CHECK-NEXT:    [[TMP4:%.*]] = call ptr addrspace(8) @llvm.amdgcn.make.buffer.rsrc.p8.p0(ptr [[TMP0]], i16 [[TMP1]], i32 [[TMP2]], i32 [[TMP3]])
 // CHECK-NEXT:    ret ptr addrspace(8) [[TMP4]]
 //
@@ -35,20 +29,15 @@ __device__ __amdgpu_buffer_rsrc_t test_amdgcn_make_buffer_rsrc_p0(void *p, short
 // CHECK-LABEL: define dso_local ptr addrspace(8) @_Z47test_amdgcn_make_buffer_rsrc_p0_stride_constantPvii(
 // CHECK-SAME: ptr noundef [[P:%.*]], i32 noundef [[NUM:%.*]], i32 noundef [[FLAGS:%.*]]) #[[ATTR0]] {
 // CHECK-NEXT:  [[ENTRY:.*:]]
-// CHECK-NEXT:    [[RETVAL:%.*]] = alloca ptr addrspace(8), align 16, addrspace(5)
 // CHECK-NEXT:    [[P_ADDR:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[NUM_ADDR:%.*]] = alloca i32, align 4, addrspace(5)
 // CHECK-NEXT:    [[FLAGS_ADDR:%.*]] = alloca i32, align 4, addrspace(5)
-// CHECK-NEXT:    [[RETVAL_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[RETVAL]] to ptr
-// CHECK-NEXT:    [[P_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[P_ADDR]] to ptr
-// CHECK-NEXT:    [[NUM_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[NUM_ADDR]] to ptr
-// CHECK-NEXT:    [[FLAGS_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[FLAGS_ADDR]] to ptr
-// CHECK-NEXT:    store ptr [[P]], ptr [[P_ADDR_ASCAST]], align 8
-// CHECK-NEXT:    store i32 [[NUM]], ptr [[NUM_ADDR_ASCAST]], align 4
-// CHECK-NEXT:    store i32 [[FLAGS]], ptr [[FLAGS_ADDR_ASCAST]], align 4
-// CHECK-NEXT:    [[TMP0:%.*]] = load ptr, ptr [[P_ADDR_ASCAST]], align 8
-// CHECK-NEXT:    [[TMP1:%.*]] = load i32, ptr [[NUM_ADDR_ASCAST]], align 4
-// CHECK-NEXT:    [[TMP2:%.*]] = load i32, ptr [[FLAGS_ADDR_ASCAST]], align 4
+// CHECK-NEXT:    store ptr [[P]], ptr addrspace(5) [[P_ADDR]], align 8
+// CHECK-NEXT:    store i32 [[NUM]], ptr addrspace(5) [[NUM_ADDR]], align 4
+// CHECK-NEXT:    store i32 [[FLAGS]], ptr addrspace(5) [[FLAGS_ADDR]], align 4
+// CHECK-NEXT:    [[TMP0:%.*]] = load ptr, ptr addrspace(5) [[P_ADDR]], align 8
+// CHECK-NEXT:    [[TMP1:%.*]] = load i32, ptr addrspace(5) [[NUM_ADDR]], align 4
+// CHECK-NEXT:    [[TMP2:%.*]] = load i32, ptr addrspace(5) [[FLAGS_ADDR]], align 4
 // CHECK-NEXT:    [[TMP3:%.*]] = call ptr addrspace(8) @llvm.amdgcn.make.buffer.rsrc.p8.p0(ptr [[TMP0]], i16 4, i32 [[TMP1]], i32 [[TMP2]])
 // CHECK-NEXT:    ret ptr addrspace(8) [[TMP3]]
 //
@@ -59,20 +48,15 @@ __device__ __amdgpu_buffer_rsrc_t test_amdgcn_make_buffer_rsrc_p0_stride_constan
 // CHECK-LABEL: define dso_local ptr addrspace(8) @_Z44test_amdgcn_make_buffer_rsrc_p0_num_constantPvsi(
 // CHECK-SAME: ptr noundef [[P:%.*]], i16 noundef signext [[STRIDE:%.*]], i32 noundef [[FLAGS:%.*]]) #[[ATTR0]] {
 // CHECK-NEXT:  [[ENTRY:.*:]]
-// CHECK-NEXT:    [[RETVAL:%.*]] = alloca ptr addrspace(8), align 16, addrspace(5)
 // CHECK-NEXT:    [[P_ADDR:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[STRIDE_ADDR:%.*]] = alloca i16, align 2, addrspace(5)
 // CHECK-NEXT:    [[FLAGS_ADDR:%.*]] = alloca i32, align 4, addrspace(5)
-// CHECK-NEXT:    [[RETVAL_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[RETVAL]] to ptr
-// CHECK-NEXT:    [[P_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[P_ADDR]] to ptr
-// CHECK-NEXT:    [[STRIDE_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[STRIDE_ADDR]] to ptr
-// CHECK-NEXT:    [[FLAGS_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[FLAGS_ADDR]] to ptr
-// CHECK-NEXT:    store ptr [[P]], ptr [[P_ADDR_ASCAST]], align 8
-// CHECK-NEXT:    store i16 [[STRIDE]], ptr [[STRIDE_ADDR_ASCAST]], align 2
-// CHECK-NEXT:    store i32 [[FLAGS]], ptr [[FLAGS_ADDR_ASCAST]], align 4
-// CHECK-NEXT:    [[TMP0:%.*]] = load ptr, ptr [[P_ADDR_ASCAST]], align 8
-// CHECK-NEXT:    [[TMP1:%.*]] = load i16, ptr [[STRIDE_ADDR_ASCAST]], align 2
-// CHECK-NEXT:    [[TMP2:%.*]] = load i32, ptr [[FLAGS_ADDR_ASCAST]], align 4
+// CHECK-NEXT:    store ptr [[P]], ptr addrspace(5) [[P_ADDR]], align 8
+// CHECK-NEXT:    store i16 [[STRIDE]], ptr addrspace(5) [[STRIDE_ADDR]], align 2
+// CHECK-NEXT:    store i32 [[FLAGS]], ptr addrspace(5) [[FLAGS_ADDR]], align 4
+// CHECK-NEXT:    [[TMP0:%.*]] = load ptr, ptr addrspace(5) [[P_ADDR]], align 8
+// CHECK-NEXT:    [[TMP1:%.*]] = load i16, ptr addrspace(5) [[STRIDE_ADDR]], align 2
+// CHECK-NEXT:    [[TMP2:%.*]] = load i32, ptr addrspace(5) [[FLAGS_ADDR]], align 4
 // CHECK-NEXT:    [[TMP3:%.*]] = call ptr addrspace(8) @llvm.amdgcn.make.buffer.rsrc.p8.p0(ptr [[TMP0]], i16 [[TMP1]], i32 1234, i32 [[TMP2]])
 // CHECK-NEXT:    ret ptr addrspace(8) [[TMP3]]
 //
@@ -83,20 +67,15 @@ __device__ __amdgpu_buffer_rsrc_t test_amdgcn_make_buffer_rsrc_p0_num_constant(v
 // CHECK-LABEL: define dso_local ptr addrspace(8) @_Z46test_amdgcn_make_buffer_rsrc_p0_flags_constantPvsi(
 // CHECK-SAME: ptr noundef [[P:%.*]], i16 noundef signext [[STRIDE:%.*]], i32 noundef [[NUM:%.*]]) #[[ATTR0]] {
 // CHECK-NEXT:  [[ENTRY:.*:]]
-// CHECK-NEXT:    [[RETVAL:%.*]] = alloca ptr addrspace(8), align 16, addrspace(5)
 // CHECK-NEXT:    [[P_ADDR:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[STRIDE_ADDR:%.*]] = alloca i16, align 2, addrspace(5)
 // CHECK-NEXT:    [[NUM_ADDR:%.*]] = alloca i32, align 4, addrspace(5)
-// CHECK-NEXT:    [[RETVAL_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[RETVAL]] to ptr
-// CHECK-NEXT:    [[P_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[P_ADDR]] to ptr
-// CHECK-NEXT:    [[STRIDE_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[STRIDE_ADDR]] to ptr
-// CHECK-NEXT:    [[NUM_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[NUM_ADDR]] to ptr
-// CHECK-NEXT:    store ptr [[P]], ptr [[P_ADDR_ASCAST]], align 8
-// CHECK-NEXT:    store i16 [[STRIDE]], ptr [[STRIDE_ADDR_ASCAST]], align 2
-// CHECK-NEXT:    store i32 [[NUM]], ptr [[NUM_ADDR_ASCAST]], align 4
-// CHECK-NEXT:    [[TMP0:%.*]] = load ptr, ptr [[P_ADDR_ASCAST]], align 8
-// CHECK-NEXT:    [[TMP1:%.*]] = load i16, ptr [[STRIDE_ADDR_ASCAST]], align 2
-// CHECK-NEXT:    [[TMP2:%.*]] = load i32, ptr [[NUM_ADDR_ASCAST]], align 4
+// CHECK-NEXT:    store ptr [[P]], ptr addrspace(5) [[P_ADDR]], align 8
+// CHECK-NEXT:    store i16 [[STRIDE]], ptr addrspace(5) [[STRIDE_ADDR]], align 2
+// CHECK-NEXT:    store i32 [[NUM]], ptr addrspace(5) [[NUM_ADDR]], align 4
+// CHECK-NEXT:    [[TMP0:%.*]] = load ptr, ptr addrspace(5) [[P_ADDR]], align 8
+// CHECK-NEXT:    [[TMP1:%.*]] = load i16, ptr addrspace(5) [[STRIDE_ADDR]], align 2
+// CHECK-NEXT:    [[TMP2:%.*]] = load i32, ptr addrspace(5) [[NUM_ADDR]], align 4
 // CHECK-NEXT:    [[TMP3:%.*]] = call ptr addrspace(8) @llvm.amdgcn.make.buffer.rsrc.p8.p0(ptr [[TMP0]], i16 [[TMP1]], i32 [[TMP2]], i32 5678)
 // CHECK-NEXT:    ret ptr addrspace(8) [[TMP3]]
 //

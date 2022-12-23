@@ -14,18 +14,15 @@
 // CHECK-NEXT:    [[OUT:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[OUT_ADDR:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[DISPATCH_PTR:%.*]] = alloca ptr, align 8, addrspace(5)
-// CHECK-NEXT:    [[OUT_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[OUT]] to ptr
-// CHECK-NEXT:    [[OUT_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[OUT_ADDR]] to ptr
-// CHECK-NEXT:    [[DISPATCH_PTR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[DISPATCH_PTR]] to ptr
-// CHECK-NEXT:    store ptr addrspace(1) [[OUT_COERCE:%.*]], ptr [[OUT_ASCAST]], align 8
-// CHECK-NEXT:    [[OUT1:%.*]] = load ptr, ptr [[OUT_ASCAST]], align 8
-// CHECK-NEXT:    store ptr [[OUT1]], ptr [[OUT_ADDR_ASCAST]], align 8
+// CHECK-NEXT:    store ptr addrspace(1) [[OUT_COERCE:%.*]], ptr addrspace(5) [[OUT]], align 8
+// CHECK-NEXT:    [[OUT1:%.*]] = load ptr, ptr addrspace(5) [[OUT]], align 8
+// CHECK-NEXT:    store ptr [[OUT1]], ptr addrspace(5) [[OUT_ADDR]], align 8
 // CHECK-NEXT:    [[TMP0:%.*]] = call align 4 dereferenceable(64) ptr addrspace(4) @llvm.amdgcn.dispatch.ptr()
 // CHECK-NEXT:    [[TMP1:%.*]] = addrspacecast ptr addrspace(4) [[TMP0]] to ptr
-// CHECK-NEXT:    store ptr [[TMP1]], ptr [[DISPATCH_PTR_ASCAST]], align 8
-// CHECK-NEXT:    [[TMP2:%.*]] = load ptr, ptr [[DISPATCH_PTR_ASCAST]], align 8
+// CHECK-NEXT:    store ptr [[TMP1]], ptr addrspace(5) [[DISPATCH_PTR]], align 8
+// CHECK-NEXT:    [[TMP2:%.*]] = load ptr, ptr addrspace(5) [[DISPATCH_PTR]], align 8
 // CHECK-NEXT:    [[TMP3:%.*]] = load i32, ptr [[TMP2]], align 4
-// CHECK-NEXT:    [[TMP4:%.*]] = load ptr, ptr [[OUT_ADDR_ASCAST]], align 8
+// CHECK-NEXT:    [[TMP4:%.*]] = load ptr, ptr addrspace(5) [[OUT_ADDR]], align 8
 // CHECK-NEXT:    store i32 [[TMP3]], ptr [[TMP4]], align 4
 // CHECK-NEXT:    ret void
 //
@@ -39,18 +36,15 @@ __global__ void use_dispatch_ptr(int* out) {
 // CHECK-NEXT:    [[OUT:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[OUT_ADDR:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[QUEUE_PTR:%.*]] = alloca ptr, align 8, addrspace(5)
-// CHECK-NEXT:    [[OUT_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[OUT]] to ptr
-// CHECK-NEXT:    [[OUT_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[OUT_ADDR]] to ptr
-// CHECK-NEXT:    [[QUEUE_PTR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[QUEUE_PTR]] to ptr
-// CHECK-NEXT:    store ptr addrspace(1) [[OUT_COERCE:%.*]], ptr [[OUT_ASCAST]], align 8
-// CHECK-NEXT:    [[OUT1:%.*]] = load ptr, ptr [[OUT_ASCAST]], align 8
-// CHECK-NEXT:    store ptr [[OUT1]], ptr [[OUT_ADDR_ASCAST]], align 8
+// CHECK-NEXT:    store ptr addrspace(1) [[OUT_COERCE:%.*]], ptr addrspace(5) [[OUT]], align 8
+// CHECK-NEXT:    [[OUT1:%.*]] = load ptr, ptr addrspace(5) [[OUT]], align 8
+// CHECK-NEXT:    store ptr [[OUT1]], ptr addrspace(5) [[OUT_ADDR]], align 8
 // CHECK-NEXT:    [[TMP0:%.*]] = call ptr addrspace(4) @llvm.amdgcn.queue.ptr()
 // CHECK-NEXT:    [[TMP1:%.*]] = addrspacecast ptr addrspace(4) [[TMP0]] to ptr
-// CHECK-NEXT:    store ptr [[TMP1]], ptr [[QUEUE_PTR_ASCAST]], align 8
-// CHECK-NEXT:    [[TMP2:%.*]] = load ptr, ptr [[QUEUE_PTR_ASCAST]], align 8
+// CHECK-NEXT:    store ptr [[TMP1]], ptr addrspace(5) [[QUEUE_PTR]], align 8
+// CHECK-NEXT:    [[TMP2:%.*]] = load ptr, ptr addrspace(5) [[QUEUE_PTR]], align 8
 // CHECK-NEXT:    [[TMP3:%.*]] = load i32, ptr [[TMP2]], align 4
-// CHECK-NEXT:    [[TMP4:%.*]] = load ptr, ptr [[OUT_ADDR_ASCAST]], align 8
+// CHECK-NEXT:    [[TMP4:%.*]] = load ptr, ptr addrspace(5) [[OUT_ADDR]], align 8
 // CHECK-NEXT:    store i32 [[TMP3]], ptr [[TMP4]], align 4
 // CHECK-NEXT:    ret void
 //
@@ -64,18 +58,15 @@ __global__ void use_queue_ptr(int* out) {
 // CHECK-NEXT:    [[OUT:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[OUT_ADDR:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[IMPLICITARG_PTR:%.*]] = alloca ptr, align 8, addrspace(5)
-// CHECK-NEXT:    [[OUT_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[OUT]] to ptr
-// CHECK-NEXT:    [[OUT_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[OUT_ADDR]] to ptr
-// CHECK-NEXT:    [[IMPLICITARG_PTR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[IMPLICITARG_PTR]] to ptr
-// CHECK-NEXT:    store ptr addrspace(1) [[OUT_COERCE:%.*]], ptr [[OUT_ASCAST]], align 8
-// CHECK-NEXT:    [[OUT1:%.*]] = load ptr, ptr [[OUT_ASCAST]], align 8
-// CHECK-NEXT:    store ptr [[OUT1]], ptr [[OUT_ADDR_ASCAST]], align 8
+// CHECK-NEXT:    store ptr addrspace(1) [[OUT_COERCE:%.*]], ptr addrspace(5) [[OUT]], align 8
+// CHECK-NEXT:    [[OUT1:%.*]] = load ptr, ptr addrspace(5) [[OUT]], align 8
+// CHECK-NEXT:    store ptr [[OUT1]], ptr addrspace(5) [[OUT_ADDR]], align 8
 // CHECK-NEXT:    [[TMP0:%.*]] = call ptr addrspace(4) @llvm.amdgcn.implicitarg.ptr()
 // CHECK-NEXT:    [[TMP1:%.*]] = addrspacecast ptr addrspace(4) [[TMP0]] to ptr
-// CHECK-NEXT:    store ptr [[TMP1]], ptr [[IMPLICITARG_PTR_ASCAST]], align 8
-// CHECK-NEXT:    [[TMP2:%.*]] = load ptr, ptr [[IMPLICITARG_PTR_ASCAST]], align 8
+// CHECK-NEXT:    store ptr [[TMP1]], ptr addrspace(5) [[IMPLICITARG_PTR]], align 8
+// CHECK-NEXT:    [[TMP2:%.*]] = load ptr, ptr addrspace(5) [[IMPLICITARG_PTR]], align 8
 // CHECK-NEXT:    [[TMP3:%.*]] = load i32, ptr [[TMP2]], align 4
-// CHECK-NEXT:    [[TMP4:%.*]] = load ptr, ptr [[OUT_ADDR_ASCAST]], align 8
+// CHECK-NEXT:    [[TMP4:%.*]] = load ptr, ptr addrspace(5) [[OUT_ADDR]], align 8
 // CHECK-NEXT:    store i32 [[TMP3]], ptr [[TMP4]], align 4
 // CHECK-NEXT:    ret void
 //
@@ -91,12 +82,10 @@ __global__
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[SRC_ADDR:%.*]] = alloca float, align 4, addrspace(5)
 // CHECK-NEXT:    [[X:%.*]] = alloca float, align 4, addrspace(5)
-// CHECK-NEXT:    [[SRC_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[SRC_ADDR]] to ptr
-// CHECK-NEXT:    [[X_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[X]] to ptr
-// CHECK-NEXT:    store float [[SRC:%.*]], ptr [[SRC_ADDR_ASCAST]], align 4
-// CHECK-NEXT:    [[TMP0:%.*]] = load float, ptr [[SRC_ADDR_ASCAST]], align 4
+// CHECK-NEXT:    store float [[SRC:%.*]], ptr addrspace(5) [[SRC_ADDR]], align 4
+// CHECK-NEXT:    [[TMP0:%.*]] = load float, ptr addrspace(5) [[SRC_ADDR]], align 4
 // CHECK-NEXT:    [[TMP1:%.*]] = atomicrmw fmax ptr addrspace(3) @_ZZ12test_ds_fmaxfE6shared, float [[TMP0]] monotonic, align 4
-// CHECK-NEXT:    store volatile float [[TMP1]], ptr [[X_ASCAST]], align 4
+// CHECK-NEXT:    store volatile float [[TMP1]], ptr addrspace(5) [[X]], align 4
 // CHECK-NEXT:    ret void
 //
     test_ds_fmax(float src) {
@@ -108,12 +97,10 @@ __global__
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[SRC_ADDR:%.*]] = alloca float, align 4, addrspace(5)
 // CHECK-NEXT:    [[X:%.*]] = alloca float, align 4, addrspace(5)
-// CHECK-NEXT:    [[SRC_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[SRC_ADDR]] to ptr
-// CHECK-NEXT:    [[X_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[X]] to ptr
-// CHECK-NEXT:    store float [[SRC:%.*]], ptr [[SRC_ADDR_ASCAST]], align 4
-// CHECK-NEXT:    [[TMP0:%.*]] = load float, ptr [[SRC_ADDR_ASCAST]], align 4
+// CHECK-NEXT:    store float [[SRC:%.*]], ptr addrspace(5) [[SRC_ADDR]], align 4
+// CHECK-NEXT:    [[TMP0:%.*]] = load float, ptr addrspace(5) [[SRC_ADDR]], align 4
 // CHECK-NEXT:    [[TMP1:%.*]] = atomicrmw fadd ptr addrspace(3) @_ZZ12test_ds_faddfE6shared, float [[TMP0]] monotonic, align 4
-// CHECK-NEXT:    store volatile float [[TMP1]], ptr [[X_ASCAST]], align 4
+// CHECK-NEXT:    store volatile float [[TMP1]], ptr addrspace(5) [[X]], align 4
 // CHECK-NEXT:    ret void
 //
 __global__ void test_ds_fadd(float src) {
@@ -127,19 +114,15 @@ __global__ void test_ds_fadd(float src) {
 // CHECK-NEXT:    [[SRC_ADDR:%.*]] = alloca float, align 4, addrspace(5)
 // CHECK-NEXT:    [[SHARED_ADDR:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[X:%.*]] = alloca float, align 4, addrspace(5)
-// CHECK-NEXT:    [[SHARED_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[SHARED]] to ptr
-// CHECK-NEXT:    [[SRC_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[SRC_ADDR]] to ptr
-// CHECK-NEXT:    [[SHARED_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[SHARED_ADDR]] to ptr
-// CHECK-NEXT:    [[X_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[X]] to ptr
-// CHECK-NEXT:    store ptr addrspace(1) [[SHARED_COERCE:%.*]], ptr [[SHARED_ASCAST]], align 8
-// CHECK-NEXT:    [[SHARED1:%.*]] = load ptr, ptr [[SHARED_ASCAST]], align 8
-// CHECK-NEXT:    store float [[SRC:%.*]], ptr [[SRC_ADDR_ASCAST]], align 4
-// CHECK-NEXT:    store ptr [[SHARED1]], ptr [[SHARED_ADDR_ASCAST]], align 8
-// CHECK-NEXT:    [[TMP0:%.*]] = load ptr, ptr [[SHARED_ADDR_ASCAST]], align 8
+// CHECK-NEXT:    store ptr addrspace(1) [[SHARED_COERCE:%.*]], ptr addrspace(5) [[SHARED]], align 8
+// CHECK-NEXT:    [[SHARED1:%.*]] = load ptr, ptr addrspace(5) [[SHARED]], align 8
+// CHECK-NEXT:    store float [[SRC:%.*]], ptr addrspace(5) [[SRC_ADDR]], align 4
+// CHECK-NEXT:    store ptr [[SHARED1]], ptr addrspace(5) [[SHARED_ADDR]], align 8
+// CHECK-NEXT:    [[TMP0:%.*]] = load ptr, ptr addrspace(5) [[SHARED_ADDR]], align 8
 // CHECK-NEXT:    [[TMP1:%.*]] = addrspacecast ptr [[TMP0]] to ptr addrspace(3)
-// CHECK-NEXT:    [[TMP2:%.*]] = load float, ptr [[SRC_ADDR_ASCAST]], align 4
+// CHECK-NEXT:    [[TMP2:%.*]] = load float, ptr addrspace(5) [[SRC_ADDR]], align 4
 // CHECK-NEXT:    [[TMP3:%.*]] = atomicrmw fmin ptr addrspace(3) [[TMP1]], float [[TMP2]] monotonic, align 4
-// CHECK-NEXT:    store volatile float [[TMP3]], ptr [[X_ASCAST]], align 4
+// CHECK-NEXT:    store volatile float [[TMP3]], ptr addrspace(5) [[X]], align 4
 // CHECK-NEXT:    ret void
 //
 __global__ void test_ds_fmin(float src, float *shared) {
@@ -149,10 +132,9 @@ __global__ void test_ds_fmin(float src, float *shared) {
 // CHECK-LABEL: @_Z33test_ret_builtin_nondef_addrspacev(
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[X:%.*]] = alloca ptr, align 8, addrspace(5)
-// CHECK-NEXT:    [[X_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[X]] to ptr
 // CHECK-NEXT:    [[TMP0:%.*]] = call align 4 dereferenceable(64) ptr addrspace(4) @llvm.amdgcn.dispatch.ptr()
 // CHECK-NEXT:    [[TMP1:%.*]] = addrspacecast ptr addrspace(4) [[TMP0]] to ptr
-// CHECK-NEXT:    store ptr [[TMP1]], ptr [[X_ASCAST]], align 8
+// CHECK-NEXT:    store ptr [[TMP1]], ptr addrspace(5) [[X]], align 8
 // CHECK-NEXT:    ret void
 //
 __device__ void test_ret_builtin_nondef_addrspace() {
@@ -176,19 +158,15 @@ __global__ void endpgm() {
 // CHECK-NEXT:    [[OUT_ADDR:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[A_ADDR:%.*]] = alloca i64, align 8, addrspace(5)
 // CHECK-NEXT:    [[B_ADDR:%.*]] = alloca i64, align 8, addrspace(5)
-// CHECK-NEXT:    [[OUT_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[OUT]] to ptr
-// CHECK-NEXT:    [[OUT_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[OUT_ADDR]] to ptr
-// CHECK-NEXT:    [[A_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[A_ADDR]] to ptr
-// CHECK-NEXT:    [[B_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[B_ADDR]] to ptr
-// CHECK-NEXT:    store ptr addrspace(1) [[OUT_COERCE:%.*]], ptr [[OUT_ASCAST]], align 8
-// CHECK-NEXT:    [[OUT1:%.*]] = load ptr, ptr [[OUT_ASCAST]], align 8
-// CHECK-NEXT:    store ptr [[OUT1]], ptr [[OUT_ADDR_ASCAST]], align 8
-// CHECK-NEXT:    store i64 [[A:%.*]], ptr [[A_ADDR_ASCAST]], align 8
-// CHECK-NEXT:    store i64 [[B:%.*]], ptr [[B_ADDR_ASCAST]], align 8
-// CHECK-NEXT:    [[TMP0:%.*]] = load i64, ptr [[A_ADDR_ASCAST]], align 8
-// CHECK-NEXT:    [[TMP1:%.*]] = load i64, ptr [[B_ADDR_ASCAST]], align 8
+// CHECK-NEXT:    store ptr addrspace(1) [[OUT_COERCE:%.*]], ptr addrspace(5) [[OUT]], align 8
+// CHECK-NEXT:    [[OUT1:%.*]] = load ptr, ptr addrspace(5) [[OUT]], align 8
+// CHECK-NEXT:    store ptr [[OUT1]], ptr addrspace(5) [[OUT_ADDR]], align 8
+// CHECK-NEXT:    store i64 [[A:%.*]], ptr addrspace(5) [[A_ADDR]], align 8
+// CHECK-NEXT:    store i64 [[B:%.*]], ptr addrspace(5) [[B_ADDR]], align 8
+// CHECK-NEXT:    [[TMP0:%.*]] = load i64, ptr addrspace(5) [[A_ADDR]], align 8
+// CHECK-NEXT:    [[TMP1:%.*]] = load i64, ptr addrspace(5) [[B_ADDR]], align 8
 // CHECK-NEXT:    [[TMP2:%.*]] = call i64 @llvm.amdgcn.icmp.i64.i64(i64 [[TMP0]], i64 [[TMP1]], i32 35)
-// CHECK-NEXT:    [[TMP3:%.*]] = load ptr, ptr [[OUT_ADDR_ASCAST]], align 8
+// CHECK-NEXT:    [[TMP3:%.*]] = load ptr, ptr addrspace(5) [[OUT_ADDR]], align 8
 // CHECK-NEXT:    store i64 [[TMP2]], ptr [[TMP3]], align 8
 // CHECK-NEXT:    ret void
 //
@@ -203,13 +181,11 @@ __global__ void test_uicmp_i64(unsigned long long *out, unsigned long long a, un
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[OUT:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[OUT_ADDR:%.*]] = alloca ptr, align 8, addrspace(5)
-// CHECK-NEXT:    [[OUT_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[OUT]] to ptr
-// CHECK-NEXT:    [[OUT_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[OUT_ADDR]] to ptr
-// CHECK-NEXT:    store ptr addrspace(1) [[OUT_COERCE:%.*]], ptr [[OUT_ASCAST]], align 8
-// CHECK-NEXT:    [[OUT1:%.*]] = load ptr, ptr [[OUT_ASCAST]], align 8
-// CHECK-NEXT:    store ptr [[OUT1]], ptr [[OUT_ADDR_ASCAST]], align 8
+// CHECK-NEXT:    store ptr addrspace(1) [[OUT_COERCE:%.*]], ptr addrspace(5) [[OUT]], align 8
+// CHECK-NEXT:    [[OUT1:%.*]] = load ptr, ptr addrspace(5) [[OUT]], align 8
+// CHECK-NEXT:    store ptr [[OUT1]], ptr addrspace(5) [[OUT_ADDR]], align 8
 // CHECK-NEXT:    [[TMP0:%.*]] = call i64 @llvm.amdgcn.s.memtime()
-// CHECK-NEXT:    [[TMP1:%.*]] = load ptr, ptr [[OUT_ADDR_ASCAST]], align 8
+// CHECK-NEXT:    [[TMP1:%.*]] = load ptr, ptr addrspace(5) [[OUT_ADDR]], align 8
 // CHECK-NEXT:    store i64 [[TMP0]], ptr [[TMP1]], align 8
 // CHECK-NEXT:    ret void
 //
@@ -227,20 +203,16 @@ __device__ void func(float *x);
 // CHECK-NEXT:    [[SRC_ADDR:%.*]] = alloca float, align 4, addrspace(5)
 // CHECK-NEXT:    [[SHARED_ADDR:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[X:%.*]] = alloca float, align 4, addrspace(5)
-// CHECK-NEXT:    [[SHARED_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[SHARED]] to ptr
-// CHECK-NEXT:    [[SRC_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[SRC_ADDR]] to ptr
-// CHECK-NEXT:    [[SHARED_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[SHARED_ADDR]] to ptr
-// CHECK-NEXT:    [[X_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[X]] to ptr
-// CHECK-NEXT:    store ptr addrspace(1) [[SHARED_COERCE:%.*]], ptr [[SHARED_ASCAST]], align 8
-// CHECK-NEXT:    [[SHARED1:%.*]] = load ptr, ptr [[SHARED_ASCAST]], align 8
-// CHECK-NEXT:    store float [[SRC:%.*]], ptr [[SRC_ADDR_ASCAST]], align 4
-// CHECK-NEXT:    store ptr [[SHARED1]], ptr [[SHARED_ADDR_ASCAST]], align 8
-// CHECK-NEXT:    [[TMP0:%.*]] = load ptr, ptr [[SHARED_ADDR_ASCAST]], align 8
+// CHECK-NEXT:    store ptr addrspace(1) [[SHARED_COERCE:%.*]], ptr addrspace(5) [[SHARED]], align 8
+// CHECK-NEXT:    [[SHARED1:%.*]] = load ptr, ptr addrspace(5) [[SHARED]], align 8
+// CHECK-NEXT:    store float [[SRC:%.*]], ptr addrspace(5) [[SRC_ADDR]], align 4
+// CHECK-NEXT:    store ptr [[SHARED1]], ptr addrspace(5) [[SHARED_ADDR]], align 8
+// CHECK-NEXT:    [[TMP0:%.*]] = load ptr, ptr addrspace(5) [[SHARED_ADDR]], align 8
 // CHECK-NEXT:    [[TMP1:%.*]] = addrspacecast ptr [[TMP0]] to ptr addrspace(3)
-// CHECK-NEXT:    [[TMP2:%.*]] = load float, ptr [[SRC_ADDR_ASCAST]], align 4
+// CHECK-NEXT:    [[TMP2:%.*]] = load float, ptr addrspace(5) [[SRC_ADDR]], align 4
 // CHECK-NEXT:    [[TMP3:%.*]] = atomicrmw fmin ptr addrspace(3) [[TMP1]], float [[TMP2]] monotonic, align 4
-// CHECK-NEXT:    store volatile float [[TMP3]], ptr [[X_ASCAST]], align 4
-// CHECK-NEXT:    [[TMP4:%.*]] = load ptr, ptr [[SHARED_ADDR_ASCAST]], align 8
+// CHECK-NEXT:    store volatile float [[TMP3]], ptr addrspace(5) [[X]], align 4
+// CHECK-NEXT:    [[TMP4:%.*]] = load ptr, ptr addrspace(5) [[SHARED_ADDR]], align 8
 // CHECK-NEXT:    call void @_Z4funcPf(ptr noundef [[TMP4]]) #[[ATTR7:[0-9]+]]
 // CHECK-NEXT:    ret void
 //
@@ -254,16 +226,13 @@ __global__ void test_ds_fmin_func(float src, float *__restrict shared) {
 // CHECK-NEXT:    [[X:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[X_ADDR:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[RET:%.*]] = alloca i8, align 1, addrspace(5)
-// CHECK-NEXT:    [[X_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[X]] to ptr
-// CHECK-NEXT:    [[X_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[X_ADDR]] to ptr
-// CHECK-NEXT:    [[RET_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[RET]] to ptr
-// CHECK-NEXT:    store ptr addrspace(1) [[X_COERCE:%.*]], ptr [[X_ASCAST]], align 8
-// CHECK-NEXT:    [[X1:%.*]] = load ptr, ptr [[X_ASCAST]], align 8
-// CHECK-NEXT:    store ptr [[X1]], ptr [[X_ADDR_ASCAST]], align 8
-// CHECK-NEXT:    [[TMP0:%.*]] = load ptr, ptr [[X_ADDR_ASCAST]], align 8
+// CHECK-NEXT:    store ptr addrspace(1) [[X_COERCE:%.*]], ptr addrspace(5) [[X]], align 8
+// CHECK-NEXT:    [[X1:%.*]] = load ptr, ptr addrspace(5) [[X]], align 8
+// CHECK-NEXT:    store ptr [[X1]], ptr addrspace(5) [[X_ADDR]], align 8
+// CHECK-NEXT:    [[TMP0:%.*]] = load ptr, ptr addrspace(5) [[X_ADDR]], align 8
 // CHECK-NEXT:    [[TMP1:%.*]] = call i1 @llvm.amdgcn.is.shared(ptr [[TMP0]])
 // CHECK-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP1]] to i8
-// CHECK-NEXT:    store i8 [[STOREDV]], ptr [[RET_ASCAST]], align 1
+// CHECK-NEXT:    store i8 [[STOREDV]], ptr addrspace(5) [[RET]], align 1
 // CHECK-NEXT:    ret void
 //
 __global__ void test_is_shared(float *x){
@@ -275,16 +244,13 @@ __global__ void test_is_shared(float *x){
 // CHECK-NEXT:    [[X:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[X_ADDR:%.*]] = alloca ptr, align 8, addrspace(5)
 // CHECK-NEXT:    [[RET:%.*]] = alloca i8, align 1, addrspace(5)
-// CHECK-NEXT:    [[X_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[X]] to ptr
-// CHECK-NEXT:    [[X_ADDR_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[X_ADDR]] to ptr
-// CHECK-NEXT:    [[RET_ASCAST:%.*]] = addrspacecast ptr addrspace(5) [[RET]] to ptr
-// CHECK-NEXT:    store ptr addrspace(1) [[X_COERCE:%.*]], ptr [[X_ASCAST]], align 8
-// CHECK-NEXT:    [[X1:%.*]] = load ptr, ptr [[X_ASCAST]], align 8
-// CHECK-NEXT:    store ptr [[X1]], ptr [[X_ADDR_ASCAST]], align 8
-// CHECK-NEXT:    [[TMP0:%.*]] = load ptr, ptr [[X_ADDR_ASCAST]], align 8
+// CHECK-NEXT:    store ptr addrspace(1) [[X_COERCE:%.*]], ptr addrspace(5) [[X]], align 8
+// CHECK-NEXT:    [[X1:%.*]] = load ptr, ptr addrspace(5) [[X]], align 8
+// CHECK-NEXT:    store ptr [[X1]], ptr addrspace(5) [[X_ADDR]], align 8
+// CHECK-NEXT:    [[TMP0:%.*]] = load ptr, ptr addrspace(5) [[X_ADDR]], align 8
 // CHECK-NEXT:    [[TMP1:%.*]] = call i1 @llvm.amdgcn.is.private(ptr [[TMP0]])
 // CHECK-NEXT:    [[STOREDV:%.*]] = zext i1 [[TMP1]] to i8
-// CHECK-NEXT:    store i8 [[STOREDV]], ptr [[RET_ASCAST]], align 1
+// CHECK-NEXT:    store i8 [[STOREDV]], ptr addrspace(5) [[RET]], align 1
 // CHECK-NEXT:    ret void
 //
 __global__ void test_is_private(int *x){

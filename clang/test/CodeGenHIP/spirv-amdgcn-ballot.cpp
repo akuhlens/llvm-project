@@ -12,12 +12,9 @@
 // CHECK-LABEL: define spir_func noundef i64 @_Z3fooi(
 // CHECK-SAME: i32 noundef [[P:%.*]]) addrspace(4) #[[ATTR0:[0-9]+]] {
 // CHECK-NEXT:  entry:
-// CHECK-NEXT:    [[RETVAL:%.*]] = alloca i64, align 8
 // CHECK-NEXT:    [[P_ADDR:%.*]] = alloca i32, align 4
-// CHECK-NEXT:    [[RETVAL_ASCAST:%.*]] = addrspacecast ptr [[RETVAL]] to ptr addrspace(4)
-// CHECK-NEXT:    [[P_ADDR_ASCAST:%.*]] = addrspacecast ptr [[P_ADDR]] to ptr addrspace(4)
-// CHECK-NEXT:    store i32 [[P]], ptr addrspace(4) [[P_ADDR_ASCAST]], align 4
-// CHECK-NEXT:    [[TMP0:%.*]] = load i32, ptr addrspace(4) [[P_ADDR_ASCAST]], align 4
+// CHECK-NEXT:    store i32 [[P]], ptr [[P_ADDR]], align 4
+// CHECK-NEXT:    [[TMP0:%.*]] = load i32, ptr [[P_ADDR]], align 4
 // CHECK-NEXT:    [[TOBOOL:%.*]] = icmp ne i32 [[TMP0]], 0
 // CHECK-NEXT:    [[TMP1:%.*]] = call addrspace(4) i64 @llvm.amdgcn.ballot.i64(i1 [[TOBOOL]])
 // CHECK-NEXT:    ret i64 [[TMP1]]
