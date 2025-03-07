@@ -5,6 +5,6 @@
   else
     print *, "fail"
   end if
-  ERROR! unknown keyword argument to intrinsic 'sizeof'
+  !ERROR: unknown keyword argument to intrinsic 'sizeof'
   print *, sizeof(a=a)
 end
