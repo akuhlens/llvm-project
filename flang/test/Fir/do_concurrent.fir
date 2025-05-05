@@ -91,7 +91,6 @@ func.func @dc_2d_reduction(%i_lb: index, %i_ub: index, %i_st: index,
 // CHECK:           }
 // CHECK:         }
 
-
 fir.local {type = local} @local_privatizer : i32
 
 // CHECK:   fir.local {type = local} @[[LOCAL_PRIV_SYM:local_privatizer]] : i32
@@ -109,3 +108,66 @@ fir.local {type = local_init} @local_init_privatizer : i32 copy {
 // CHECK:      fir.store %[[ORIG_VAL_LD]] to %[[LOCAL_VAL]] : !fir.ref<i32>
 // CHECK:      fir.yield(%[[LOCAL_VAL]] : !fir.ref<i32>)
 // CHECK:   }
+
+func.func @_QPdo_concurrent() {
+  %3 = fir.alloca i32 {bindc_name = "local_init_var", uniq_name = "_QFdo_concurrentElocal_init_var"}
+  %4:2 = hlfir.declare %3 {uniq_name = "_QFdo_concurrentElocal_init_var"} : (!fir.ref<i32>) -> (!fir.ref<i32>, !fir.ref<i32>)
+  %5 = fir.alloca i32 {bindc_name = "local_var", uniq_name = "_QFdo_concurrentElocal_var"}
+  %6:2 = hlfir.declare %5 {uniq_name = "_QFdo_concurrentElocal_var"} : (!fir.ref<i32>) -> (!fir.ref<i32>, !fir.ref<i32>)
+  %c1 = arith.constant 1 : index
+  %c10 = arith.constant 1 : index
+  fir.do_concurrent {
+    %9 = fir.alloca i32 {bindc_name = "i"}
+    %10:2 = hlfir.declare %9 {uniq_name = "_QFdo_concurrentEi"} : (!fir.ref<i32>) -> (!fir.ref<i32>, !fir.ref<i32>)
+    fir.do_concurrent.loop (%arg0) = (%c1) to (%c10) step (%c1) local(@local_privatizer %6#0 -> %arg1, @local_init_privatizer %4#0 -> %arg2 : !fir.ref<i32>, !fir.ref<i32>) {
+      %11 = fir.convert %arg0 : (index) -> i32
+      fir.store %11 to %10#0 : !fir.ref<i32>
+      %13:2 = hlfir.declare %arg1 {uniq_name = "_QFdo_concurrentElocal_var"} : (!fir.ref<i32>) -> (!fir.ref<i32>, !fir.ref<i32>)
+      %15:2 = hlfir.declare %arg2 {uniq_name = "_QFdo_concurrentElocal_init_var"} : (!fir.ref<i32>) -> (!fir.ref<i32>, !fir.ref<i32>)
+      %17 = fir.load %10#0 : !fir.ref<i32>
+      %c5_i32 = arith.constant 5 : i32
+      %18 = arith.cmpi slt, %17, %c5_i32 : i32
+      fir.if %18 {
+        %c42_i32 = arith.constant 42 : i32
+        hlfir.assign %c42_i32 to %13#0 : i32, !fir.ref<i32>
+      } else {
+        %c84_i32 = arith.constant 84 : i32
+        hlfir.assign %c84_i32 to %15#0 : i32, !fir.ref<i32>
+      }
+    }
+  }
+  return
+}
+
+// CHECK-LABEL:   func.func @_QPdo_concurrent() {
+// CHECK:           %[[LOC_INIT_ALLOC:.*]] = fir.alloca i32 {bindc_name = "local_init_var", {{.*}}}
+// CHECK:           %[[LOC_INIT_DECL:.*]]:2 = hlfir.declare %[[LOC_INIT_ALLOC]]
+
+// CHECK:           %[[LOC_ALLOC:.*]] = fir.alloca i32 {bindc_name = "local_var", {{.*}}}
+// CHECK:           %[[LOC_DECL:.*]]:2 = hlfir.declare %[[LOC_ALLOC]]
+
+// CHECK:           %[[C1:.*]] = arith.constant 1 : index
+// CHECK:           %[[C10:.*]] = arith.constant 1 : index
+
+// CHECK:           fir.do_concurrent {
+// CHECK:             %[[DC_I_ALLOC:.*]] = fir.alloca i32 {bindc_name = "i"}
+// CHECK:             %[[DC_I_DECL:.*]]:2 = hlfir.declare %[[DC_I_ALLOC]]
+
+// CHECK:             fir.do_concurrent.loop (%[[IV:.*]]) = (%[[C1]]) to (%[[C10]]) step (%[[C1]]) local(@[[LOCAL_PRIV_SYM]] %[[LOC_DECL]]#0 -> %[[LOC_ARG:.*]], @[[LOCAL_INIT_PRIV_SYM]] %[[LOC_INIT_DECL]]#0 -> %[[LOC_INIT_ARG:.*]] : !fir.ref<i32>, !fir.ref<i32>) {
+// CHECK:               %[[IV_CVT:.*]] = fir.convert %[[IV]] : (index) -> i32
+// CHECK:               fir.store %[[IV_CVT]] to %[[DC_I_DECL]]#0 : !fir.ref<i32>
+
+// CHECK:               %[[LOC_PRIV_DECL:.*]]:2 = hlfir.declare %[[LOC_ARG]]
+// CHECK:               %[[LOC_INIT_PRIV_DECL:.*]]:2 = hlfir.declare %[[LOC_INIT_ARG]]
+
+// CHECK:               fir.if %{{.*}} {
+// CHECK:                 %[[C42:.*]] = arith.constant 42 : i32
+// CHECK:                 hlfir.assign %[[C42]] to %[[LOC_PRIV_DECL]]#0 : i32, !fir.ref<i32>
+// CHECK:               } else {
+// CHECK:                 %[[C84:.*]] = arith.constant 84 : i32
+// CHECK:                 hlfir.assign %[[C84]] to %[[LOC_INIT_PRIV_DECL]]#0 : i32, !fir.ref<i32>
+// CHECK:               }
+// CHECK:             }
+// CHECK:           }
+// CHECK:           return
+// CHECK:         }
