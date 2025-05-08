@@ -13,6 +13,7 @@
 
 #include "CIRGenCall.h"
 #include "CIRGenFunction.h"
+#include "CIRGenFunctionInfo.h"
 #include "clang/CIR/MissingFeatures.h"
 
 using namespace clang;
@@ -20,20 +21,22 @@ using namespace clang::CIRGen;
 
 CIRGenFunctionInfo *
 CIRGenFunctionInfo::create(CanQualType resultType,
-                           llvm::ArrayRef<CanQualType> argTypes) {
+                           llvm::ArrayRef<CanQualType> argTypes,
+                           RequiredArgs required) {
   // The first slot allocated for ArgInfo is for the return value.
   void *buffer = operator new(totalSizeToAlloc<ArgInfo>(argTypes.size() + 1));
 
-  CIRGenFunctionInfo *fi = new (buffer) CIRGenFunctionInfo();
-  fi->numArgs = argTypes.size();
-
   assert(!cir::MissingFeatures::opCallCIRGenFuncInfoParamInfo());
+
+  CIRGenFunctionInfo *fi = new (buffer) CIRGenFunctionInfo();
+
+  fi->required = required;
+  fi->numArgs = argTypes.size();
 
   ArgInfo *argsBuffer = fi->getArgsBuffer();
   (argsBuffer++)->type = resultType;
   for (CanQualType ty : argTypes)
     (argsBuffer++)->type = ty;
-
   assert(!cir::MissingFeatures::opCallCIRGenFuncInfoExtParamInfo());
 
   return fi;
@@ -45,7 +48,7 @@ namespace {
 /// CIRGenFunctionInfo should be passed to actual CIR function.
 class ClangToCIRArgMapping {
   static constexpr unsigned invalidIndex = ~0U;
-  unsigned totalNumCIRArgs;
+  unsigned totalNumCIRArgs = 0;
 
   /// Arguments of CIR function corresponding to single Clang argument.
   struct CIRArgs {
@@ -61,14 +64,20 @@ class ClangToCIRArgMapping {
 
 public:
   ClangToCIRArgMapping(const ASTContext &astContext,
-                       const CIRGenFunctionInfo &funcInfo)
-      : totalNumCIRArgs(0), argInfo(funcInfo.arg_size()) {
+                       const CIRGenFunctionInfo &funcInfo,
+                       bool onlyRequiredArgs)
+      : argInfo(onlyRequiredArgs ? funcInfo.getNumRequiredArgs()
+                                 : funcInfo.argInfoSize()) {
     unsigned cirArgNo = 0;
 
     assert(!cir::MissingFeatures::opCallABIIndirectArg());
 
     unsigned argNo = 0;
-    for (const CIRGenFunctionInfoArgInfo &i : funcInfo.arguments()) {
+    llvm::ArrayRef<CIRGenFunctionInfoArgInfo> argInfos(
+        funcInfo.argInfoBegin(), onlyRequiredArgs
+                                     ? funcInfo.getNumRequiredArgs()
+                                     : funcInfo.argInfoSize());
+    for (const CIRGenFunctionInfoArgInfo &i : argInfos) {
       // Collect data about CIR arguments corresponding to Clang argument ArgNo.
       CIRArgs &cirArgs = argInfo[argNo];
 
@@ -119,6 +128,63 @@ public:
 
 } // namespace
 
+cir::FuncType CIRGenTypes::getFunctionType(const CIRGenFunctionInfo &fi) {
+  bool inserted = functionsBeingProcessed.insert(&fi).second;
+  (void)inserted;
+  assert(inserted && "Recursively being processed?");
+
+  mlir::Type resultType;
+  const cir::ABIArgInfo &retInfo = fi.getReturnInfo();
+
+  switch (retInfo.getKind()) {
+  case cir::ABIArgInfo::Ignore:
+    // TODO(CIR): This should probably be the None type from the builtin
+    // dialect.
+    resultType = nullptr;
+    break;
+  case cir::ABIArgInfo::Direct:
+    resultType = retInfo.getCoerceToType();
+    break;
+  }
+
+  ClangToCIRArgMapping cirFunctionArgs(getASTContext(), fi, true);
+  SmallVector<mlir::Type, 8> argTypes(cirFunctionArgs.totalCIRArgs());
+
+  unsigned argNo = 0;
+  llvm::ArrayRef<CIRGenFunctionInfoArgInfo> argInfos(fi.argInfoBegin(),
+                                                     fi.getNumRequiredArgs());
+  for (const auto &argInfo : argInfos) {
+    const auto &abiArgInfo = argInfo.info;
+
+    unsigned firstCIRArg, numCIRArgs;
+    std::tie(firstCIRArg, numCIRArgs) = cirFunctionArgs.getCIRArgs(argNo);
+
+    switch (abiArgInfo.getKind()) {
+    case cir::ABIArgInfo::Direct: {
+      mlir::Type argType = abiArgInfo.getCoerceToType();
+      // TODO: handle the test against llvm::RecordType from codegen
+      assert(numCIRArgs == 1);
+      argTypes[firstCIRArg] = argType;
+      break;
+    }
+    default:
+      cgm.errorNYI("getFunctionType: unhandled argument kind");
+    }
+
+    ++argNo;
+  }
+  assert(argNo == fi.argInfoSize() &&
+         "Mismatch between function info and args");
+
+  bool erased = functionsBeingProcessed.erase(&fi);
+  (void)erased;
+  assert(erased && "Not in set?");
+
+  return cir::FuncType::get(argTypes,
+                            (resultType ? resultType : builder.getVoidTy()),
+                            fi.isVariadic());
+}
+
 CIRGenCallee CIRGenCallee::prepareConcreteCallee(CIRGenFunction &cgf) const {
   assert(!cir::MissingFeatures::opCallVirtual());
   return *this;
@@ -128,6 +194,9 @@ static const CIRGenFunctionInfo &
 arrangeFreeFunctionLikeCall(CIRGenTypes &cgt, CIRGenModule &cgm,
                             const CallArgList &args,
                             const FunctionType *fnType) {
+
+  RequiredArgs required = RequiredArgs::All;
+
   if (const auto *proto = dyn_cast<FunctionProtoType>(fnType)) {
     if (proto->isVariadic())
       cgm.errorNYI("call to variadic function");
@@ -144,7 +213,7 @@ arrangeFreeFunctionLikeCall(CIRGenTypes &cgt, CIRGenModule &cgm,
   CanQualType retType = fnType->getReturnType()
                             ->getCanonicalTypeUnqualified()
                             .getUnqualifiedType();
-  return cgt.arrangeCIRFunctionInfo(retType, argTypes);
+  return cgt.arrangeCIRFunctionInfo(retType, argTypes, required);
 }
 
 const CIRGenFunctionInfo &
@@ -168,6 +237,23 @@ emitCallLikeOp(CIRGenFunction &cgf, mlir::Location callLoc,
   return builder.createCallOp(callLoc, directFuncOp, cirCallArgs);
 }
 
+const CIRGenFunctionInfo &
+CIRGenTypes::arrangeFreeFunctionType(CanQual<FunctionProtoType> fpt) {
+  SmallVector<CanQualType, 8> argTypes;
+  for (unsigned i = 0, e = fpt->getNumParams(); i != e; ++i)
+    argTypes.push_back(fpt->getParamType(i));
+  RequiredArgs required = RequiredArgs::forPrototypePlus(fpt);
+
+  CanQualType resultType = fpt->getReturnType().getUnqualifiedType();
+  return arrangeCIRFunctionInfo(resultType, argTypes, required);
+}
+
+const CIRGenFunctionInfo &
+CIRGenTypes::arrangeFreeFunctionType(CanQual<FunctionNoProtoType> fnpt) {
+  CanQualType resultType = fnpt->getReturnType().getUnqualifiedType();
+  return arrangeCIRFunctionInfo(resultType, {}, RequiredArgs(0));
+}
+
 RValue CIRGenFunction::emitCall(const CIRGenFunctionInfo &funcInfo,
                                 const CIRGenCallee &callee,
                                 ReturnValueSlot returnValue,
@@ -177,16 +263,16 @@ RValue CIRGenFunction::emitCall(const CIRGenFunctionInfo &funcInfo,
   QualType retTy = funcInfo.getReturnType();
   const cir::ABIArgInfo &retInfo = funcInfo.getReturnInfo();
 
-  ClangToCIRArgMapping cirFuncArgs(cgm.getASTContext(), funcInfo);
+  ClangToCIRArgMapping cirFuncArgs(cgm.getASTContext(), funcInfo, false);
   SmallVector<mlir::Value, 16> cirCallArgs(cirFuncArgs.totalCIRArgs());
 
   assert(!cir::MissingFeatures::emitLifetimeMarkers());
 
   // Translate all of the arguments as necessary to match the CIR lowering.
-  assert(funcInfo.arg_size() == args.size() &&
+  assert(funcInfo.argInfoSize() == args.size() &&
          "Mismatch between function signature & arguments.");
   unsigned argNo = 0;
-  for (const auto &[arg, argInfo] : llvm::zip(args, funcInfo.arguments())) {
+  for (const auto &[arg, argInfo] : llvm::zip(args, funcInfo.argInfos())) {
     // Insert a padding argument to ensure proper alignment.
     assert(!cir::MissingFeatures::opCallPaddingArgs());
 
