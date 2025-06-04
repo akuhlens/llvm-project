@@ -1118,7 +1118,6 @@ static bool parseDialectArgs(CompilerInvocation &res, llvm::opt::ArgList &args,
       diags.Report(diagID);
     }
   }
-
   return diags.getNumErrors() == numErrorsBefore;
 }
 
