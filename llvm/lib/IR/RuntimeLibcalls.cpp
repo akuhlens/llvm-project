@@ -32,9 +32,6 @@ static void setAArch64LibcallNames(RuntimeLibcallsInfo &Info,
 }
 
 void RuntimeLibcallsInfo::initSoftFloatCmpLibcallPredicates() {
-  std::fill(SoftFloatCompareLibcallPredicates,
-            SoftFloatCompareLibcallPredicates + RTLIB::UNKNOWN_LIBCALL,
-            CmpInst::BAD_ICMP_PREDICATE);
   SoftFloatCompareLibcallPredicates[RTLIB::OEQ_F32] = CmpInst::ICMP_EQ;
   SoftFloatCompareLibcallPredicates[RTLIB::OEQ_F64] = CmpInst::ICMP_EQ;
   SoftFloatCompareLibcallPredicates[RTLIB::OEQ_F128] = CmpInst::ICMP_EQ;
@@ -68,18 +65,11 @@ void RuntimeLibcallsInfo::initSoftFloatCmpLibcallPredicates() {
 /// Set default libcall names. If a target wants to opt-out of a libcall it
 /// should be placed here.
 void RuntimeLibcallsInfo::initLibcalls(const Triple &TT) {
-  std::fill(std::begin(LibcallRoutineNames), std::end(LibcallRoutineNames),
-            nullptr);
-
   initSoftFloatCmpLibcallPredicates();
 
 #define HANDLE_LIBCALL(code, name) setLibcallName(RTLIB::code, name);
 #include "llvm/IR/RuntimeLibcalls.def"
 #undef HANDLE_LIBCALL
-
-  // Initialize calling conventions to their default.
-  for (int LC = 0; LC < RTLIB::UNKNOWN_LIBCALL; ++LC)
-    setLibcallCallingConv((RTLIB::Libcall)LC, CallingConv::C);
 
   // Use the f128 variants of math functions on x86
   if (TT.isX86() && TT.isGNUEnvironment()) {
