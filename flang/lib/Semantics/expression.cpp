@@ -1151,6 +1151,9 @@ MaybeExpr ExpressionAnalyzer::Analyze(const parser::Name &n) {
   if (context_.HasError(n.symbol)) { // includes case of no symbol
     return std::nullopt;
   } else {
+    // Most expression references are diagnosed here. Analyze(Expr) below
+    // performs the same check explicitly when returning a saved typed
+    // expression, since that path does not call Analyze(Name).
     WarnForNumericStorageSize(context_, n);
     const Symbol &ultimate{n.symbol->GetUltimate()};
     if (ultimate.has<semantics::TypeParamDetails>()) {
@@ -4753,6 +4756,8 @@ MaybeExpr ExpressionAnalyzer::Analyze(const parser::Expr &expr) {
   MaybeExpr result;
   if (useSavedTypedExprs_) {
     if (expr.typedExpr) {
+      // Returning a saved typed expression bypasses Analyze(Name), so walk the
+      // original expression to perform its numeric_storage_size checks.
       NumericStorageSizeWarningVisitor visitor{context_};
       parser::Walk(expr, visitor);
       return expr.typedExpr->v;
