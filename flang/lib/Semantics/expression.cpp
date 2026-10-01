@@ -1078,6 +1078,10 @@ MaybeExpr ExpressionAnalyzer::Analyze(const parser::BOZLiteralConstant &x) {
 // Names and named constants
 static void WarnForNumericStorageSize(
     semantics::SemanticsContext &context, const parser::Name &name) {
+  // Follow the association chain rather than relying on GetUltimate()'s owner:
+  // separately compiled submodules reconstruct hermetic module scopes.  This
+  // also handles renames and re-exports while retaining the nearest USE for
+  // the attachment below.
   const semantics::Symbol *associated{name.symbol};
   const semantics::UseDetails *use{nullptr};
   bool isNumericStorageSize{false};
@@ -1112,6 +1116,10 @@ static void WarnForNumericStorageSize(
   const std::size_t realBytes{
       targetCharacteristics.GetByteSize(TypeCategory::Real, realKind)};
   if (intBytes != realBytes) {
+    // An inherited name in a separately compiled submodule can retain
+    // provenance in the parent .mod file even though name is an expression
+    // reference in source.  The association checks above make it safe to
+    // bypass the usual suppression of diagnostics from module files here.
     if (auto *message{context.messages().Warn(
             /*isInModuleFile=*/false, context.languageFeatures(),
             common::UsageWarning::FoldingValueChecks, name.source,
@@ -4757,7 +4765,9 @@ MaybeExpr ExpressionAnalyzer::Analyze(const parser::Expr &expr) {
   if (useSavedTypedExprs_) {
     if (expr.typedExpr) {
       // Returning a saved typed expression bypasses Analyze(Name), so walk the
-      // original expression to perform its numeric_storage_size checks.
+      // original expression to perform its numeric_storage_size checks.  If
+      // the expression is analyzed again, Messages::Emit() deduplicates the
+      // identical diagnostic at the same source location.
       NumericStorageSizeWarningVisitor visitor{context_};
       parser::Walk(expr, visitor);
       return expr.typedExpr->v;
